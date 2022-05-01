@@ -6,6 +6,7 @@ import com.codingzero.dddutilities.transaction.manager.TransactionManagerImpl;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,7 +20,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 
-
+@Ignore
 public class JDBCTransactionServiceTest {
 
     private static String SCHEMA_NAME = "utilities_transaction";
