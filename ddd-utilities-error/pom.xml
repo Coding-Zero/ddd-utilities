@@ -4,7 +4,7 @@
 
     <!--The identifier of the parent POM-->
     <parent>
-        <groupId>com.codingzero</groupId>
+        <groupId>com.codingzero.utilities</groupId>
         <artifactId>ddd-utilities</artifactId>
         <version>1.0.0</version>
     </parent>
