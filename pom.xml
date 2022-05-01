@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.codingzero</groupId>
+    <artifactId>ddd-utilities</artifactId>
+    <version>1.0.0</version>
+    <modules>
+        <module>ddd-utilities-error</module>
+        <module>ddd-utilities-pagination</module>
+        <module>ddd-utilities-entity</module>
+        <module>ddd-utilities-transaction</module>
+        <module>ddd-utilities-key</module>
+    </modules>
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>CodingZero</name>
+        <url>https://github.com/Coding-Zero/ddd-utilities</url>
+    </organization>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>Domain-driven design practice handy utilities</description>
+    <url>https://github.com/Coding-Zero/ddd-utilities</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Rui Sun</name>
+            <email>stevesuncanada@gmail.com</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+
+        <!--dependence version-->
+        <java-uuid-generator>3.1.4</java-uuid-generator>
+        <mysql-connector-java-version>6.0.4</mysql-connector-java-version>
+        <junit-version>4.12</junit-version>
+        <mockito-version>2.13.0</mockito-version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>${java-uuid-generator}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector-java-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito-version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+</project>
