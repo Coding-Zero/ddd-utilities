@@ -6,7 +6,7 @@
 
     <groupId>com.codingzero.utilities</groupId>
     <artifactId>ddd-utilities</artifactId>
-    <version>1.0.0</version>
+    <version>${revision}</version>
     <modules>
         <module>ddd-utilities-error</module>
         <module>ddd-utilities-pagination</module>
@@ -17,13 +17,14 @@
     <packaging>pom</packaging>
 
     <properties>
+        <revision>1.0.1</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
         <!--dependence version-->
         <java-uuid-generator>3.1.4</java-uuid-generator>
-        <mysql-connector-java-version>6.0.4</mysql-connector-java-version>
+        <mysql-connector-java-version>8.0.29</mysql-connector-java-version>
         <junit-version>4.12</junit-version>
         <mockito-version>2.13.0</mockito-version>
     </properties>
@@ -87,6 +88,31 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

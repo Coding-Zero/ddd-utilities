@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.codingzero.utilities</groupId>
         <artifactId>ddd-utilities</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
