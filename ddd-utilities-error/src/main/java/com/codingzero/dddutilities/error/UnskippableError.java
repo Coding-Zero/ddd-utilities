@@ -2,8 +2,8 @@ package com.codingzero.dddutilities.error;
 
 public abstract class UnskippableError extends RuntimeException {
 
-    private static final UnskippableSingleError.Builder SINGLE = new UnskippableSingleError.Builder();
-    private static final UnskippableMultipleErrors.Builder MULTIPLE = new UnskippableMultipleErrors.Builder();
+    public static final UnskippableSingleError.Builder SINGLE = new UnskippableSingleError.Builder();
+    public static final UnskippableMultipleErrors.Builder MULTIPLE = new UnskippableMultipleErrors.Builder();
 
     private Type type;
 
