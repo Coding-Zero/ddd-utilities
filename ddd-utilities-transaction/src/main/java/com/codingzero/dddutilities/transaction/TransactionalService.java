@@ -6,12 +6,12 @@ package com.codingzero.dddutilities.transaction;
  */
 public interface TransactionalService {
 
-    void onRegister(String name, TransactionContext context);
+    void onRegister();
 
-    void onStartTransaction(TransactionContext context);
+    void onStart(TransactionContext context);
 
-    void onCommitTransaction(TransactionContext context);
+    void onCommit(TransactionContext context);
 
-    void onRollbackTransaction(TransactionContext context);
+    void onRollback(TransactionContext context);
 
 }

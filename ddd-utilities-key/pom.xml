@@ -14,14 +14,19 @@
     <name>key encode/decode utilities</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <java-uuid-generator>3.1.4</java-uuid-generator>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
+            <version>${java-uuid-generator}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
         </dependency>
     </dependencies>
 </project>

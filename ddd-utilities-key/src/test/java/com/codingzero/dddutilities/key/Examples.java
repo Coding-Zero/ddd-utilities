@@ -1,11 +1,11 @@
 package com.codingzero.dddutilities.key;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class Examples {
 
-    @Before
+    @BeforeEach
     public void setup() {
 
     }

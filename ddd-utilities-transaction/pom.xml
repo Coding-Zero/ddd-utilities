@@ -14,15 +14,20 @@
     <name>application transaction utilities</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <!--dependence version-->
+        <mysql-connector-java-version>8.0.29</mysql-connector-java-version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-connector-java-version}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

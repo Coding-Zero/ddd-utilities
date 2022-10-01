@@ -17,7 +17,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <revision>1.0.2</revision>
+        <revision>1.1.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -25,25 +25,15 @@
         <!--dependence version-->
         <java-uuid-generator>3.1.4</java-uuid-generator>
         <mysql-connector-java-version>8.0.29</mysql-connector-java-version>
-        <junit-version>4.12</junit-version>
-        <mockito-version>2.13.0</mockito-version>
+        <junit-version>5.4.0</junit-version>
+        <mockito-version>4.6.1</mockito-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.fasterxml.uuid</groupId>
-                <artifactId>java-uuid-generator</artifactId>
-                <version>${java-uuid-generator}</version>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql-connector-java-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit-version}</version>
                 <scope>test</scope>
             </dependency>
@@ -88,6 +78,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
