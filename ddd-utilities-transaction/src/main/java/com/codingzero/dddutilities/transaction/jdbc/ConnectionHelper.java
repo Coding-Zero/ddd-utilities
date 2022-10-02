@@ -23,14 +23,17 @@ public class ConnectionHelper implements TransactionalService {
 
     public <T> T execute(Executor<T> executor) {
         ExecutorContext context = new ExecutorContext(getConnection());
-        T result = executor.execute(context);
-        for (PreparedStatement preparedStatement: context.getRecyclingPreparedStatements()) {
-            if (Objects.nonNull(preparedStatement)) {
-                closePreparedStatement(preparedStatement);
+        try {
+            T result = executor.execute(context);
+            return result;
+        } finally {
+            for (PreparedStatement preparedStatement: context.getRecyclingPreparedStatements()) {
+                if (Objects.nonNull(preparedStatement)) {
+                    closePreparedStatement(preparedStatement);
+                }
             }
+            closeConnection();
         }
-        closeConnection();
-        return result;
     }
 
     private Connection getConnection() {

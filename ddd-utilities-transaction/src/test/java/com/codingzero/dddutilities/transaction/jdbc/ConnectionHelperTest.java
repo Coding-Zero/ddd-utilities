@@ -198,6 +198,26 @@ public class ConnectionHelperTest {
             this.connectionHelper = connectionHelper;
         }
 
+        public boolean isDuplicate(String value) {
+            return connectionHelper.execute(context -> {
+                Connection conn = context.getConnection();
+                PreparedStatement stmt = null;
+                try {
+                    String sql = String.format("SELECT * FROM %s WHERE value=? LIMIT 1;",
+                            SCHEMA_NAME + "." + TABLE_NAME);
+                    stmt = conn.prepareCall(sql);
+                    stmt.setString(1, value);
+                    ResultSet rs = stmt.executeQuery();
+                    rs.next();
+                    return rs.getInt(1) > 0;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    context.recyclePreparedStatement(stmt);
+                }
+            });
+        }
+
         public void insert(String value) {
             connectionHelper.execute(context -> {
                 Connection conn = context.getConnection();
