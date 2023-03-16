@@ -2,6 +2,7 @@ package com.codingzero.dddutilities.pagination;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,17 +26,22 @@ public class PaginatedResult<T, P extends Paging> {
     private List<Object> arguments;
     private P currentPage;
     private List<FieldSort> fieldSorts;
+    private List<FieldSort> originalFieldSorts;
+    private SortableFieldMapper sortableFieldMapper;
 
     public PaginatedResult(PaginatedResultDelegate<T, P> delegate,
                            ResultCountDelegate resultCountDelegate,
                            PagingDelegate<P> pagingDelegate,
+                           SortableFieldMapper sortableFieldMapper,
                            Object... arguments) {
         this.resultCountDelegate = resultCountDelegate;
         this.pagingDelegate = pagingDelegate;
+        this.sortableFieldMapper = sortableFieldMapper;
         this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
         this.delegate = delegate;
         this.currentPage = null;
         this.fieldSorts = null;
+        this.originalFieldSorts = null;
         checkForNullDelegate();
         checkForNullPagingDelegate();
     }
@@ -50,6 +56,15 @@ public class PaginatedResult<T, P extends Paging> {
 
     public ResultCountDelegate getResultCountDelegate() {
         return resultCountDelegate;
+    }
+
+    /**
+     * Returns the given SortableFieldMapper, if not given, return null
+     *
+     * @return SortableFieldMapper
+     */
+    public SortableFieldMapper getSortableFieldMapper() {
+        return sortableFieldMapper;
     }
 
     /**
@@ -85,8 +100,22 @@ public class PaginatedResult<T, P extends Paging> {
      */
     public <R extends PaginatedResult<T, P>> R start(P paging, List<FieldSort> fieldSorts) {
         setCurrentPage(paging);
-        this.fieldSorts = Collections.unmodifiableList(fieldSorts);
+        this.originalFieldSorts = Collections.unmodifiableList(fieldSorts);
+        this.fieldSorts = translateFieldSorts(fieldSorts);
         return (R) this;
+    }
+
+    private List<FieldSort> translateFieldSorts(List<FieldSort> fieldSorts) {
+        if (Objects.isNull(getSortableFieldMapper())) {
+            return Collections.unmodifiableList(fieldSorts);
+        }
+        List<FieldSort> result = new LinkedList<>();
+        for (FieldSort fieldSort: fieldSorts) {
+            String translatedField = getSortableFieldMapper().translate(fieldSort.getFieldName());
+            FieldSort translated = new FieldSort(translatedField, fieldSort.getOrder());
+            result.add(translated);
+        }
+        return result;
     }
 
     /**
@@ -156,12 +185,21 @@ public class PaginatedResult<T, P extends Paging> {
     }
 
     /**
-     * Returns the current sorting conditions.
+     * Returns the translated FieldSort list, if SortableFieldMapper given,
+     * otherwise return the same FieldSort as #{@code getOriginalFieldSorts} returns.
      *
      * @return List%3CFieldSort%3E
      */
     public List<FieldSort> getFieldSorts() {
         return fieldSorts;
+    }
+
+    /**
+     * Returns the original given FieldSort list
+     * @return List%3CFieldSort%3E
+     */
+    public List<FieldSort> getOriginalFieldSorts() {
+        return originalFieldSorts;
     }
 
     private void setCurrentPage(P pageCursor) {

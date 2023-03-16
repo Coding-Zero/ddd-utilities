@@ -10,14 +10,22 @@ public final class CursorPaginatedResult<T> extends PaginatedResult<T, CursorPag
     public CursorPaginatedResult(PaginatedResultDelegate<T, CursorPaging> delegate,
                                  PagingDelegate<CursorPaging> pagingDelegate,
                                  Object... arguments) {
-        this(delegate, null, pagingDelegate, arguments);
+        this(delegate, null, pagingDelegate, null, arguments);
     }
 
     public CursorPaginatedResult(PaginatedResultDelegate<T, CursorPaging> delegate,
                                  ResultCountDelegate resultCountDelegate,
                                  PagingDelegate<CursorPaging> pagingDelegate,
                                  Object... arguments) {
-        super(delegate, resultCountDelegate, pagingDelegate, arguments);
+        this(delegate, resultCountDelegate, pagingDelegate, null, arguments);
+    }
+
+    public CursorPaginatedResult(PaginatedResultDelegate<T, CursorPaging> delegate,
+                                 ResultCountDelegate resultCountDelegate,
+                                 PagingDelegate<CursorPaging> pagingDelegate,
+                                 SortableFieldMapper sortableFieldMapper,
+                                 Object... arguments) {
+        super(delegate, resultCountDelegate, pagingDelegate, sortableFieldMapper, arguments);
     }
 
 }

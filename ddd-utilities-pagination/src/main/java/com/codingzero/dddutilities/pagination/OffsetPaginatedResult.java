@@ -17,7 +17,14 @@ public final class OffsetPaginatedResult<T> extends PaginatedResult<T, OffsetPag
     public OffsetPaginatedResult(PaginatedResultDelegate<T, OffsetPaging> delegate,
                                  ResultCountDelegate resultCountDelegate,
                                  Object... arguments) {
-        super(delegate, resultCountDelegate, new OffsetPagingDelegate(), arguments);
+        this(delegate, resultCountDelegate, null, arguments);
+    }
+
+    public OffsetPaginatedResult(PaginatedResultDelegate<T, OffsetPaging> delegate,
+                                 ResultCountDelegate resultCountDelegate,
+                                 SortableFieldMapper sortableFieldMapper,
+                                 Object... arguments) {
+        super(delegate, resultCountDelegate, new OffsetPagingDelegate(), sortableFieldMapper, arguments);
     }
 
     private static class OffsetPagingDelegate implements PagingDelegate<OffsetPaging> {
