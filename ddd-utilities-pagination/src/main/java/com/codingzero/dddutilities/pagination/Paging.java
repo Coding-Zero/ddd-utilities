@@ -10,7 +10,7 @@ public abstract class Paging<S> {
     private final S start;
     private final int size;
 
-    protected Paging(S start, int size) {
+    public Paging(S start, int size) {
         this.start = start;
         this.size = size;
     }
