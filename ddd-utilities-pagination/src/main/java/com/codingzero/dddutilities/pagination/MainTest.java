@@ -34,13 +34,15 @@ public class MainTest {
     private static void demoOffsetPaging() {
         OffsetPaginatedResult<List<String>> result = getLines();
 
+
         //Accessing data page by page
         List<String> lines;
-        result = result.start(0, 25);
+        result = result.start(new OffsetPaging(0, 25));
         do {
-            OffsetPage<List<String>> page = result.getPage();
+            Page<List<String>, OffsetPaging> page = result.getPage();
             lines = page.getContent();
-            System.out.println("2: " + page);
+            System.out.println("1A: " + page);
+            System.out.println();
             result = result.next();
         } while (!lines.isEmpty());
     }
@@ -50,108 +52,123 @@ public class MainTest {
 
         //Accessing data page by page
         List<String> lines;
-        result = result.start(0, 31);
+        result = result.start(new OffsetPaging(0, 31));
         int total = result.getTotalCount();
-        OffsetPage<List<String>> page = result.getPage();
+        Page<List<String>, OffsetPaging> page = result.getPage();
         while (!page.getContent().isEmpty()) {
-            System.out.println("1: " + result.getPage() + " <= " + total);
-            lines = result.getData();
-            System.out.println("1: " + lines);
+            System.out.println("1B: " + result.getPage() + " <= " + total);
+            System.out.println();
             result = result.next();
             page = result.getPage();
         }
     }
 
     private static OffsetPaginatedResult<List<String>> getLines() {
-        return new OffsetPaginatedResult<>(
-                request -> {
-                    int fromIndex = request.getPageStart();
-                    int toIndex = fromIndex + request.getPageSize();
-                    if (toIndex > LINES.size()) {
-                        toIndex = LINES.size();
-                    }
-                    List<String> result = LINES.subList(fromIndex, toIndex);
-                    return new ResultFetchResponse<>(
-                            result,
-                            fromIndex + result.size());
-                },
-                LINES::size
-        );
+        OffsetPaginatedResult<List<String>> paginatedResult =
+                new OffsetPaginatedResult<>(
+                        request -> {
+                            int fromIndex = request.getPage().getStart();
+                        int toIndex = fromIndex + request.getPage().getSize();
+                        if (toIndex > LINES.size()) {
+                            toIndex = LINES.size();
+                        }
+                        return LINES.subList(fromIndex, toIndex);
+                    },
+                    LINES::size);
+        paginatedResult.handleNextPaging(
+                (paging, data)
+                        -> new OffsetPaging(paging.getStart() + data.size(), paging.getSize()));
+        return paginatedResult;
     }
 
     private static void demoCursorPagingNested() {
-        CursorPaginatedResult<List<Integer>> resultBase = getNumbers();
+        CursorPaginatedResult<Map<String, Integer>> resultBase = getNumbers();
         CursorPaginatedResult<List<String>> result = new CursorPaginatedResult<>(
                 request -> {
-                    CursorPage<List<Integer>> page = resultBase.start(request.getPageStart(), request.getPageSize()).getPage();
-                    List<Integer> numbers = page.getContent();
-                    List<String> numStrings = new ArrayList<>(numbers.size());
-                    for (Integer num : numbers) {
-                        numStrings.add(String.valueOf(num));
+                    Page<Map<String, Integer>, CursorPaging> page =
+                            resultBase.start(request.getPage(), request.getFieldSorts()).getPage();
+                    Map<String, Integer> data = page.getContent();
+                    List<String> numStrings = new ArrayList<>(data.size());
+                    for (Map.Entry<String, Integer> entry : data.entrySet()) {
+                        numStrings.add(String.valueOf(entry.getValue()));
                     }
-                    return new ResultFetchResponse<>(
-                            numStrings, page.getNextStart());
+                    return numStrings;
                 },
                 resultBase::getTotalCount
         );
 
+        result.handleNextPaging(
+                (paging, data) -> {
+                    String nextPageStart = null;
+                    if (!data.isEmpty()) {
+                        nextPageStart = data.get(data.size() - 1);
+                    }
+                    return new CursorPaging(nextPageStart, paging.getSize());
+                });
+
         //Accessing data page by page
         List<String> lines;
-        result = result.start(null, 30);
+        result = result.start(new CursorPaging(null, 30));
         do {
-            CursorPage<List<String>> page = result.getPage();
-            System.out.println(page);
+            Page<List<String>, CursorPaging> page = result.getPage();
+            System.out.println("2A: " + page);
             lines = page.getContent();
-            System.out.println(lines);
+            System.out.println();
             result = result.next();
         } while (lines.size() > 0);
     }
 
     private static void demoCursorPaging() {
-        CursorPaginatedResult<List<Integer>> result = getNumbers();
+        CursorPaginatedResult<Map<String, Integer>> result = getNumbers();
 
         //Accessing data page by page
-        List<Integer> lines;
-        result = result.start(null, 25);
+        Map<String, Integer> lines;
+        result = result.start(new CursorPaging(null, 25));
         do {
-            CursorPage<List<Integer>> page = result.getPage();
-            System.out.println(page);
+            Page<Map<String, Integer>, CursorPaging> page = result.getPage();
+            System.out.println("2B: " + page);
             lines = page.getContent();
-            System.out.println(lines);
             result = result.next();
         } while (lines.size() > 0);
     }
 
-    private static CursorPaginatedResult<List<Integer>> getNumbers() {
-        return new CursorPaginatedResult<>(
-                request -> {
-                    String cursor = request.getPageStart();
-                    int size = request.getPageSize();
-                    List<Integer> result = new ArrayList<>(size);
-                    boolean foundPageStart = false;
-                    String nextPageStartCursor = null;
-                    for (Map.Entry<String, Integer> entry : NUM_DICT.entrySet()) {
-                        if (Objects.isNull(cursor)) {
-                            foundPageStart = true;
-                        } else {
-                            if (entry.getKey().equalsIgnoreCase(cursor)) {
-                                foundPageStart = true;
-                                continue; //jump to next
-                            }
-                        }
+    private static CursorPaginatedResult<Map<String, Integer>> getNumbers() {
+        CursorPaginatedResult<Map<String, Integer>> paginatedResult =
+                new CursorPaginatedResult<>(
+                        request -> {
+                            String cursor = request.getPage().getStart();
+                            int size = request.getPage().getSize();
+                            Map<String, Integer> result = new LinkedHashMap<>(size);
+                            boolean foundPageStart = false;
+                            for (Map.Entry<String, Integer> entry : NUM_DICT.entrySet()) {
+                                if (Objects.isNull(cursor)) {
+                                    foundPageStart = true;
+                                } else {
+                                    if (entry.getKey().equalsIgnoreCase(cursor)) {
+                                        foundPageStart = true;
+                                        continue; //jump to next
+                                    }
+                                }
 
-                        if (foundPageStart) {
-                            result.add(entry.getValue());
-                            nextPageStartCursor = entry.getKey();
-                        }
-                        if (result.size() >= size) {
-                            break;
-                        }
+                                if (foundPageStart) {
+                                    result.put(entry.getKey(), entry.getValue());
+                                }
+                                if (result.size() >= size) {
+                                    break;
+                                }
+                            }
+                            return result;
+                        },
+                        NUM_DICT::size);
+        paginatedResult.handleNextPaging(
+                (paging, data) -> {
+                    String nextPageStart = null;
+                    for (Map.Entry<String, Integer> entry: data.entrySet()) {
+                        nextPageStart = entry.getKey();
                     }
-                    return new ResultFetchResponse<>(result, nextPageStartCursor);
-                },
-                NUM_DICT::size
-        );
+                    return new CursorPaging(nextPageStart, paging.getSize());
+                });
+        return paginatedResult;
     }
 
 }

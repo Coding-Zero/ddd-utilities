@@ -1,29 +1,24 @@
 package com.codingzero.dddutilities.pagination;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * This class encapsulate all parameters which are required to fetch data
  * from persistence systems, like database, file system etc.
  */
-public class ResultFetchRequest<S> {
+public class ResultFetchRequest<P extends Paging> {
 
-    private final S pageStart;
-    private final int pageSize;
+    private final P page;
     private final List<FieldSort> fieldSorts;
 
-    public ResultFetchRequest(S pageStart, int pageSize, List<FieldSort> fieldSorts) {
-        this.pageStart = pageStart;
-        this.pageSize = pageSize;
-        this.fieldSorts = fieldSorts;
+    public ResultFetchRequest(P page, List<FieldSort> fieldSorts) {
+        this.page = page;
+        this.fieldSorts = Collections.unmodifiableList(fieldSorts);
     }
 
-    public S getPageStart() {
-        return pageStart;
-    }
-
-    public int getPageSize() {
-        return pageSize;
+    public P getPage() {
+        return page;
     }
 
     public List<FieldSort> getFieldSorts() {

@@ -4,16 +4,16 @@ package com.codingzero.dddutilities.pagination;
  * This interface define the protocol of how to fetch data.
  *
  * @param <T> type of data
- * @param <S> page start type
+ * @param <P> paging type
  */
-public interface PaginatedResultDelegate<T, S> {
+public interface PaginatedResultDelegate<T, P extends Paging> {
 
     /**
-     * Return data based on the given parameters
+     * Return data based on the given fetching request
      *
-     * @param request -- request
-     * @return ResultFetchResponse
+     * @param request ResultFetchRequest%3C? extends P%3E
+     * @return T
      */
-    ResultFetchResponse<T, S> fetchResult(ResultFetchRequest<S> request);
+    T fetchResult(ResultFetchRequest<? extends P> request);
 
 }

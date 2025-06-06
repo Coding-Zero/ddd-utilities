@@ -2,25 +2,16 @@ package com.codingzero.dddutilities.pagination;
 
 import java.util.List;
 
-public class Page<T, S> {
+public class Page<T, P> {
 
     private final T content;
-    private final S nextStart;
-    private final S start;
-    private final int size;
+    private final P paging;
     private final int totalCount;
     private final List<FieldSort> fieldSorts;
 
-    public Page(T content,
-                S nextStart,
-                S start,
-                int size,
-                int totalCount,
-                List<FieldSort> fieldSorts) {
+    public Page(T content, P paging, int totalCount, List<FieldSort> fieldSorts) {
         this.content = content;
-        this.nextStart = nextStart;
-        this.start = start;
-        this.size = size;
+        this.paging = paging;
         this.totalCount = totalCount;
         this.fieldSorts = fieldSorts;
     }
@@ -29,16 +20,8 @@ public class Page<T, S> {
         return content;
     }
 
-    public S getNextStart() {
-        return nextStart;
-    }
-
-    public S getStart() {
-        return start;
-    }
-
-    public int getSize() {
-        return size;
+    public P getPaging() {
+        return paging;
     }
 
     public int getTotalCount() {
@@ -49,4 +32,13 @@ public class Page<T, S> {
         return fieldSorts;
     }
 
+    @Override
+    public String toString() {
+        return "Page{" +
+                "content=" + content +
+                ", paging=" + paging +
+                ", totalCount=" + totalCount +
+                ", fieldSorts=" + fieldSorts +
+                '}';
+    }
 }

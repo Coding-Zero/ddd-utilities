@@ -1,10 +1,10 @@
 package com.codingzero.dddutilities.pagination;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 /**
  * This class define a protocol for you to access the data page by page.
@@ -12,19 +12,19 @@ import java.util.Objects;
  * Remember that you don't actually access data until you invoke #{@link #getData()} or #{@link #getPage()} method.
  *
  */
-public abstract class PaginatedResult<T, S> {
+public abstract class PaginatedResult<T, P extends Paging> {
 
-    private final PaginatedResultDelegate<T, S> delegate;
-    private final ResultCountDelegate<S> resultCountDelegate;
-    private S currentPageStart;
-    private Integer currentPageSize;
+    private final PaginatedResultDelegate<T, P> delegate;
+    private final ResultCountDelegate resultCountDelegate;
+    private BiFunction<P, T, P> nextPagingHandler;
+    private P currentPaging;
     private List<FieldSort> currentFieldSorts;
     private List<FieldSort> filteredFieldSorts;
     private final SortableFieldMapper sortableFieldMapper;
-    private Page<T, S> currentPage;
+    private T currentData;
 
-    public PaginatedResult(PaginatedResultDelegate<T, S> delegate,
-                           ResultCountDelegate<S> resultCountDelegate,
+    public PaginatedResult(PaginatedResultDelegate<T, P> delegate,
+                           ResultCountDelegate resultCountDelegate,
                            SortableFieldMapper sortableFieldMapper) {
         if (Objects.isNull(delegate)) {
             throw new NullPointerException("Need assign a delegate, "
@@ -37,46 +37,40 @@ public abstract class PaginatedResult<T, S> {
         this.currentFieldSorts = null;
     }
 
-    public S getCurrentPageStart() {
-        return currentPageStart;
+    public P getCurrentPaging() {
+        return currentPaging;
     }
 
-    public Integer getCurrentPageSize() {
-        return currentPageSize;
+    public void handleNextPaging(BiFunction<P, T, P> handler) {
+        this.nextPagingHandler = handler;
     }
 
-    public List<FieldSort> getCurrentFieldSorts() {
-        return currentFieldSorts;
-    }
-
-    public <R extends PaginatedResult<T, S>> R start(S pageStart,
-                                                     int pageSize) {
-        return start(pageStart, pageSize, Collections.emptyList());
+    public <R extends PaginatedResult<T, P>> R start(P paging) {
+        return start(paging, Collections.emptyList());
     }
     /**
      * Initial the current page and sorting conditions.
      *
-     * @param pageStart -- page start
-     * @param pageSize -- size of each page
-     * @param fieldSorts array of FieldSort
+     * @param paging P
+     * @param fieldSorts List%3CFieldSort%3E list of FieldSort
      * @param <R> R extends PaginatedResult%3CT, P%3E
      * @return R extends PaginatedResult%3CT, P%3E
      */
     @SuppressWarnings("unchecked")
-    public <R extends PaginatedResult<T, S>> R start(S pageStart,
-                                                     int pageSize,
-                                                     List<FieldSort> fieldSorts) {
-        if (!verifyPageStart(pageStart)) {
-            throw new IllegalArgumentException("Page start " + pageStart + " is not valid");
-        }
-        this.currentPageStart = pageStart;
-        this.currentPageSize = pageSize;
+    public <R extends PaginatedResult<T, P>> R start(P paging, List<FieldSort> fieldSorts) {
+        this.currentPaging = paging;
         this.currentFieldSorts = Collections.unmodifiableList(fieldSorts);
         this.filteredFieldSorts = translateFieldSorts(currentFieldSorts);
         return (R) this;
     }
 
-    protected abstract boolean verifyPageStart(S pageStart);
+    public <R extends PaginatedResult<T, P>> R next() {
+        if (Objects.isNull(this.nextPagingHandler)) {
+            throw new IllegalStateException("nextPagingHandler is required");
+        }
+        this.currentPaging = nextPagingHandler.apply(this.currentPaging, this.currentData);
+        return (R) this;
+    }
 
     private List<FieldSort> translateFieldSorts(List<FieldSort> fieldSorts) {
         if (Objects.isNull(sortableFieldMapper)) {
@@ -92,53 +86,24 @@ public abstract class PaginatedResult<T, S> {
     }
 
     /**
-     * Move to next page based on the current page
-     *
-     * @param <R> PaginatedResult
-     * @return R extends PaginatedResult%3CT, P%3E
-     */
-    @SuppressWarnings("unchecked")
-    public <R extends PaginatedResult<T, S>> R next() {
-        checkValidStateForNextPage();
-        this.currentPageStart = this.currentPage.getNextStart();
-        return (R) this;
-    }
-
-    /**
      * Returns the data with the current page.
      *
      * @return T type of accessing data
      */
     public T getData() {
-        Page<T, S> page = getPage();
-        return page.getContent();
+        this.currentData =
+                delegate.fetchResult(
+                        new ResultFetchRequest<>(this.currentPaging, filteredFieldSorts));
+        return currentData;
     }
 
-    abstract protected Page<T, S> createPage(T content,
-                                             S nextStart,
-                                             S start,
-                                             int size,
-                                             int totalCount,
-                                             List<FieldSort> fieldSorts);
-
-    @SuppressWarnings("unchecked")
-    public <R extends Page<?, ?>> R getPage() {
+    public Page<T, P> getPage() {
         checkValidStateForGetPage();
-        ResultFetchResponse<T, S> response =
-                delegate.fetchResult(
-                        new ResultFetchRequest<>(
-                                getCurrentPageStart(),
-                                getCurrentPageSize(),
-                                filteredFieldSorts));
-        this.currentPage =
-                createPage(
-                        response.getContent(),
-                        response.getNextStart(),
-                        getCurrentPageStart(),
-                        getCurrentPageSize(),
-                        getTotalCount(),
-                        getCurrentFieldSorts());
-        return (R) this.currentPage;
+        return new Page<>(
+                getData(),
+                this.currentPaging,
+                getTotalCount(),
+                this.currentFieldSorts);
     }
 
     /**
@@ -152,14 +117,8 @@ public abstract class PaginatedResult<T, S> {
     }
 
     protected void checkValidStateForGetPage() {
-        if (Objects.isNull(getCurrentPageSize())) {
+        if (Objects.isNull(this.currentPaging)) {
             throw new IllegalArgumentException("Page size is required!");
-        }
-    }
-
-    protected void checkValidStateForNextPage() {
-        if (Objects.isNull(this.currentPage)) {
-            throw new IllegalArgumentException("Need to call getPage() or getData() first!");
         }
     }
 

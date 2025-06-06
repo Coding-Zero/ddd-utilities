@@ -1,8 +1,5 @@
 package com.codingzero.dddutilities.pagination;
 
-import java.util.List;
-import java.util.Objects;
-
 /**
  * This class represents offset (index) based paging result.
  * 
@@ -10,37 +7,17 @@ import java.util.Objects;
  * 
  * @param <T> type of accessing data
  */
-public final class OffsetPaginatedResult<T> extends PaginatedResult<T, Integer> {
+public final class OffsetPaginatedResult<T> extends PaginatedResult<T, OffsetPaging> {
 
-    public OffsetPaginatedResult(PaginatedResultDelegate<T, Integer> delegate,
-                                 ResultCountDelegate<Integer> resultCountDelegate) {
+    public OffsetPaginatedResult(PaginatedResultDelegate<T, OffsetPaging> delegate,
+                                 ResultCountDelegate resultCountDelegate) {
         super(delegate, resultCountDelegate, null);
     }
 
-    public OffsetPaginatedResult(PaginatedResultDelegate<T, Integer> delegate,
-                                 ResultCountDelegate<Integer> resultCountDelegate,
+    public OffsetPaginatedResult(PaginatedResultDelegate<T, OffsetPaging> delegate,
+                                 ResultCountDelegate resultCountDelegate,
                                  SortableFieldMapper sortableFieldMapper) {
         super(delegate, resultCountDelegate, sortableFieldMapper);
     }
 
-    @Override
-    protected boolean verifyPageStart(Integer pageStart) {
-        return (Objects.nonNull(pageStart) && pageStart >= 0);
-    }
-
-    @Override
-    protected OffsetPage<T> createPage(T content,
-                                       Integer nextStart,
-                                       Integer start,
-                                       int size,
-                                       int totalCount,
-                                       List<FieldSort> fieldSorts) {
-        return new OffsetPage<T>(
-                content,
-                nextStart,
-                start,
-                size,
-                totalCount,
-                fieldSorts);
-    }
 }
