@@ -9,8 +9,8 @@ import java.util.Objects;
  */
 public abstract class Paging<S> {
 
-    private S start;
-    private int size;
+    private final S start;
+    private final int size;
 
     /**
      * Sub classes need to overwrite
