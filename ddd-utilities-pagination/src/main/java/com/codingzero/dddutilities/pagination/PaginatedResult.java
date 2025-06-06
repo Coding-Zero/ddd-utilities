@@ -49,25 +49,29 @@ public abstract class PaginatedResult<T, S> {
         return currentFieldSorts;
     }
 
+    public <R extends PaginatedResult<T, S>> R start(S pageStart,
+                                                     int pageSize) {
+        return start(pageStart, pageSize, Collections.emptyList());
+    }
     /**
      * Initial the current page and sorting conditions.
      *
      * @param pageStart -- page start
      * @param pageSize -- size of each page
-     * @param fieldSort array of FieldSort
+     * @param fieldSorts array of FieldSort
      * @param <R> R extends PaginatedResult%3CT, P%3E
      * @return R extends PaginatedResult%3CT, P%3E
      */
     @SuppressWarnings("unchecked")
     public <R extends PaginatedResult<T, S>> R start(S pageStart,
                                                      int pageSize,
-                                                     FieldSort... fieldSort) {
+                                                     List<FieldSort> fieldSorts) {
         if (!verifyPageStart(pageStart)) {
             throw new IllegalArgumentException("Page start " + pageStart + " is not valid");
         }
         this.currentPageStart = pageStart;
         this.currentPageSize = pageSize;
-        this.currentFieldSorts = Collections.unmodifiableList(Arrays.asList(fieldSort));
+        this.currentFieldSorts = Collections.unmodifiableList(fieldSorts);
         this.filteredFieldSorts = translateFieldSorts(currentFieldSorts);
         return (R) this;
     }
